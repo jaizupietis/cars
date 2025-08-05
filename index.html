@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Car Price Comparator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #2c3e50, #3498db);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            font-weight: 300;
+        }
+
+        .header p {
+            opacity: 0.9;
+            font-size: 1.1rem;
+        }
+
+        .search-section {
+            padding: 40px;
+            background: white;
+        }
+
+        .search-form {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr auto;
+            gap: 20px;
+            margin-bottom: 30px;
+            align-items: end;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group label {
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .form-group input, .form-group select {
+            padding: 12px 16px;
+            border: 2px solid #e1e8ed;
+            border-radius: 12px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            background: #f8f9fa;
+        }
+
+        .form-group input:focus, .form-group select:focus {
+            outline: none;
+            border-color: #3498db;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+        }
+
+        .search-btn {
+            padding: 12px 30px;
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            height: fit-content;
+        }
+
+        .search-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(52, 152, 219, 0.3);
+        }
+
+        .search-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .sites-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            margin-top: 30px;
+        }
+
+        .site-card {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+            overflow: hidden;
+            transition: all 0.3s ease;
+            border: 1px solid #e1e8ed;
+        }
+
+        .site-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+        }
+
+        .site-header {
+            padding: 20px;
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        .site-name {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #2c3e50;
+            margin-bottom: 5px;
+        }
+
+        .site-url {
+            color: #6c757d;
+            font-size: 0.9rem;
+        }
+
+        .results-container {
+            padding: 20px;
+            min-height: 200px;
+        }
+
+        .loading {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 150px;
+            color: #6c757d;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #3498db;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: 15px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .car-result {
+            padding: 15px;
+            border: 1px solid #e1e8ed;
+            border-radius: 12px;
+            margin-bottom: 15px;
+            background: #f8f9fa;
+            transition: all 0.3s ease;
+        }
+
+        .car-result:hover {
+            background: #e9ecef;
+            border-color: #3498db;
+        }
+
+        .car-title {
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 8px;
+            font-size: 1.1rem;
+        }
+
+        .car-price {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #27ae60;
+            margin-bottom: 8px;
+        }
+
+        .car-details {
+            color: #6c757d;
+            font-size: 0.9rem;
+            line-height: 1.4;
+        }
+
+        .car-link {
+            display: inline-block;
+            margin-top: 10px;
+            color: #3498db;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: color 0.3s ease;
+        }
+
+        .car-link:hover {
+            color: #2980b9;
+        }
+
+        .no-results {
+            text-align: center;
+            color: #6c757d;
+            padding: 40px;
+            font-style: italic;
+        }
+
+        .error {
+            color: #e74c3c;
+            background: #ffeaea;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #e74c3c;
+        }
+
+        @media (max-width: 768px) {
+            .search-form {
+                grid-template-columns: 1fr;
+            }
+            
+            .sites-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+        }
+
+        .popular-brands {
+            margin-top: 20px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 12px;
+        }
+
+        .popular-brands h3 {
+            margin-bottom: 15px;
+            color: #2c3e50;
+        }
+
+        .brand-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .brand-tag {
+            padding: 8px 16px;
+            background: #e9ecef;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: none;
+        }
+
+        .brand-tag:hover {
+            background: #3498db;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚗 Car Price Comparator</h1>
+            <p>Find the best deals across multiple European car sales platforms</p>
+        </div>
+        
+        <div class="search-section">
+            <form class="search-form" id="searchForm">
+                <div class="form-group">
+                    <label for="brand">Car Brand</label>
+                    <input type="text" id="brand" name="brand" placeholder="e.g., Tesla, BMW, Audi" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="model">Model</label>
+                    <input type="text" id="model" name="model" placeholder="e.g., Model X, X5, A4">
+                </div>
+                
+                <div class="form-group">
+                    <label for="maxPrice">Max Price (€)</label>
+                    <input type="number" id="maxPrice" name="maxPrice" placeholder="50000">
+                </div>
+                
+                <button type="submit" class="search-btn" id="searchBtn">
+                    🔍 Search Cars
+                </button>
+            </form>
+            
+            <div class="popular-brands">
+                <h3>Popular Brands</h3>
+                <div class="brand-tags">
+                    <button class="brand-tag" onclick="fillBrand('Tesla')">Tesla</button>
+                    <button class="brand-tag" onclick="fillBrand('BMW')">BMW</button>
+                    <button class="brand-tag" onclick="fillBrand('Mercedes-Benz')">Mercedes-Benz</button>
+                    <button class="brand-tag" onclick="fillBrand('Audi')">Audi</button>
+                    <button class="brand-tag" onclick="fillBrand('Volkswagen')">Volkswagen</button>
+                    <button class="brand-tag" onclick="fillBrand('Toyota')">Toyota</button>
+                    <button class="brand-tag" onclick="fillBrand('Honda')">Honda</button>
+                    <button class="brand-tag" onclick="fillBrand('Ford')">Ford</button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="sites-grid" id="resultsContainer" style="display: none;">
+            <div class="site-card">
+                <div class="site-header">
+                    <div class="site-name">🇳🇴 FINN.no</div>
+                    <div class="site-url">www.finn.no</div>
+                </div>
+                <div class="results-container" id="finn-results">
+                    <div class="no-results">Enter search criteria above</div>
+                </div>
+            </div>
+            
+            <div class="site-card">
+                <div class="site-header">
+                    <div class="site-name">🇪🇪 Auto24</div>
+                    <div class="site-url">www.auto24.ee</div>
+                </div>
+                <div class="results-container" id="auto24-results">
+                    <div class="no-results">Enter search criteria above</div>
+                </div>
+            </div>
+            
+            <div class="site-card">
+                <div class="site-header">
+                    <div class="site-name">🇱🇻 SS.lv</div>
+                    <div class="site-url">www.ss.lv</div>
+                </div>
+                <div class="results-container" id="ss-results">
+                    <div class="no-results">Enter search criteria above</div>
+                </div>
+            </div>
+            
+            <div class="site-card">
+                <div class="site-header">
+                    <div class="site-name">🇱🇹 Autoplius</div>
+                    <div class="site-url">lv.m.autoplius.lt</div>
+                </div>
+                <div class="results-container" id="autoplius-results">
+                    <div class="no-results">Enter search criteria above</div>
+                </div>
+            </div>
+            
+            <div class="site-card">
+                <div class="site-header">
+                    <div class="site-name">🇪🇺 AutoScout24</div>
+                    <div class="site-url">www.autoscout24.com</div>
+                </div>
+                <div class="results-container" id="autoscout24-results">
+                    <div class="no-results">Enter search criteria above</div>
+                </div>
+            </div>
+            
+            <div class="site-card">
+                <div class="site-header">
+                    <div class="site-name">🇩🇪 Mobile.de</div>
+                    <div class="site-url">mobile.de</div>
+                </div>
+                <div class="results-container" id="mobile-results">
+                    <div class="no-results">Enter search criteria above</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const sites = {
+            'finn': {
+                name: 'FINN.no',
+                baseUrl: 'https://www.finn.no',
+                searchEndpoint: '/api/search_cars.php?site=finn'
+            },
+            'auto24': {
+                name: 'Auto24',
+                baseUrl: 'https://www.auto24.ee',
+                searchEndpoint: '/api/search_cars.php?site=auto24'
+            },
+            'ss': {
+                name: 'SS.lv',
+                baseUrl: 'https://www.ss.lv',
+                searchEndpoint: '/api/search_cars.php?site=ss'
+            },
+            'autoplius': {
+                name: 'Autoplius',
+                baseUrl: 'https://lv.m.autoplius.lt',
+                searchEndpoint: '/api/search_cars.php?site=autoplius'
+            },
+            'autoscout24': {
+                name: 'AutoScout24',
+                baseUrl: 'https://www.autoscout24.com',
+                searchEndpoint: '/api/search_cars.php?site=autoscout24'
+            },
+            'mobile': {
+                name: 'Mobile.de',
+                baseUrl: 'https://mobile.de',
+                searchEndpoint: '/api/search_cars.php?site=mobile'
+            }
+        };
+
+        function fillBrand(brand) {
+            document.getElementById('brand').value = brand;
+        }
+
+        function showLoading(siteId) {
+            const container = document.getElementById(siteId + '-results');
+            container.innerHTML = `
+                <div class="loading">
+                    <div class="spinner"></div>
+                    <span>Searching...</span>
+                </div>
+            `;
+        }
+
+        function showError(siteId, message) {
+            const container = document.getElementById(siteId + '-results');
+            container.innerHTML = `<div class="error">❌ ${message}</div>`;
+        }
+
+        function showResults(siteId, results) {
+            const container = document.getElementById(siteId + '-results');
+            
+            if (!results || results.length === 0) {
+                container.innerHTML = '<div class="no-results">No cars found</div>';
+                return;
+            }
+
+            const resultsHtml = results.map(car => `
+                <div class="car-result">
+                    <div class="car-title">${car.title}</div>
+                    <div class="car-price">${car.price}</div>
+                    <div class="car-details">
+                        ${car.year ? `Year: ${car.year}<br>` : ''}
+                        ${car.mileage ? `Mileage: ${car.mileage}<br>` : ''}
+                        ${car.location ? `Location: ${car.location}<br>` : ''}
+                        ${car.engine ? `Engine: ${car.engine}` : ''}
+                    </div>
+                    ${car.url ? `<a href="${car.url}" target="_blank" class="car-link">View Details →</a>` : ''}
+                </div>
+            `).join('');
+
+            container.innerHTML = resultsHtml;
+        }
+
+        async function searchSite(siteId, searchParams) {
+            const site = sites[siteId];
+            showLoading(siteId);
+
+            try {
+                const response = await fetch(site.searchEndpoint, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(searchParams)
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const data = await response.json();
+                
+                if (data.error) {
+                    throw new Error(data.error);
+                }
+
+                showResults(siteId, data.results || []);
+            } catch (error) {
+                console.error(`Error searching ${site.name}:`, error);
+                showError(siteId, `Failed to search ${site.name}: ${error.message}`);
+            }
+        }
+
+        document.getElementById('searchForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(e.target);
+            const searchParams = {
+                brand: formData.get('brand').trim(),
+                model: formData.get('model').trim(),
+                maxPrice: formData.get('maxPrice') ? parseInt(formData.get('maxPrice')) : null
+            };
+
+            if (!searchParams.brand) {
+                alert('Please enter a car brand');
+                return;
+            }
+
+            // Show results container
+            document.getElementById('resultsContainer').style.display = 'grid';
+
+            // Disable search button
+            const searchBtn = document.getElementById('searchBtn');
+            searchBtn.disabled = true;
+            searchBtn.textContent = '🔍 Searching...';
+
+            // Search all sites simultaneously
+            const promises = Object.keys(sites).map(siteId => 
+                searchSite(siteId, searchParams)
+            );
+
+            try {
+                await Promise.allSettled(promises);
+            } finally {
+                // Re-enable search button
+                searchBtn.disabled = false;
+                searchBtn.textContent = '🔍 Search Cars';
+            }
+        });
+
+        // Demo data for testing (remove in production)
+        function loadDemoData() {
+            const demoResults = [
+                {
+                    title: "Tesla Model X Long Range",
+                    price: "€89,900",
+                    year: "2022",
+                    mileage: "15,000 km",
+                    location: "Oslo, Norway",
+                    engine: "Electric",
+                    url: "#"
+                },
+                {
+                    title: "Tesla Model X Performance",
+                    price: "€95,500",
+                    year: "2023",
+                    mileage: "8,500 km",
+                    location: "Bergen, Norway",
+                    engine: "Electric",
+                    url: "#"
+                }
+            ];
+
+            // Simulate results for demo
+            setTimeout(() => {
+                showResults('finn', demoResults);
+                showResults('auto24', demoResults.slice(0, 1));
+                showResults('ss', []);
+                showResults('autoplius', demoResults);
+                showResults('autoscout24', demoResults.slice(1));
+                showResults('mobile', demoResults);
+            }, 2000);
+        }
+
+        // Remove this in production - it's just for demo
+        // loadDemoData();
+    </script>
+</body>
+</html>
